@@ -1,0 +1,15 @@
+[package]
+name = "slugencode"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Constant-Time Encodings (Hex, Base32, Base64)
+ct-codecs = "1.1.6"
+
+# Base58 (fast version)
+bs58 = "0.5.1"
+
+# Security
+zeroize = "1.8.1"
+subtle = "2.6.1"
