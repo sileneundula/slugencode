@@ -48,6 +48,7 @@ use base32ct::Encoding;
 // Base58
 use bs58;
 use bs58::encode::Error as bs58Error;
+use bs58::decode::Error as bs58DecodingError;
 
 // Errors
 use ct_codecs::Error;
@@ -90,6 +91,15 @@ pub trait SlugEncoder {
     fn to_bs32(&self) -> String;
     fn to_bs32_unpadded(&self) -> String;
     fn to_base58(&self) -> String;
+}
+
+pub trait SlugDecoder {
+    fn from_hex(&self) -> Result<Vec<u8>,Error>;
+    fn from_bs64(&self) -> Result<Vec<u8>,Error>;
+    fn from_bs64_url(&self) -> Result<Vec<u8>,Error>;
+    fn from_bs32(&self) -> Result<Vec<u8>,Bs32Error>;
+    fn from_bs32_unpadded(&self) -> Result<Vec<u8>,Bs32Error>;
+    fn from_base58(&self) -> Result<Vec<u8>,bs58DecodingError>;
 }
 
 /// # SlugEncode
@@ -424,6 +434,60 @@ impl SlugAPI {
                 }
             }
         }
+    }
+}
+
+impl SlugDecoder for String {
+    fn from_hex(&self) -> Result<Vec<u8>,Error> {
+        let output = Hex::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs64(&self) -> Result<Vec<u8>,Error> {
+        let output = Base64::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs64_url(&self) -> Result<Vec<u8>,Error> {
+        let output = Base64UrlSafe::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs32(&self) -> Result<Vec<u8>,Bs32Error> {
+        let output = Base32::decode_vec(&self)?;
+        Ok(output)
+    }
+    fn from_bs32_unpadded(&self) -> Result<Vec<u8>,Bs32Error> {
+        let output = Base32Unpadded::decode_vec(&self)?;
+        Ok(output)
+    }
+    fn from_base58(&self) -> Result<Vec<u8>,bs58DecodingError> {
+        let output = bs58::decode(&self).into_vec()?;
+        Ok(output)
+    }
+}
+
+impl SlugDecoder for &str {
+fn from_hex(&self) -> Result<Vec<u8>,Error> {
+        let output = Hex::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs64(&self) -> Result<Vec<u8>,Error> {
+        let output = Base64::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs64_url(&self) -> Result<Vec<u8>,Error> {
+        let output = Base64UrlSafe::decode_to_vec(&self, None)?;
+        Ok(output)
+    }
+    fn from_bs32(&self) -> Result<Vec<u8>,Bs32Error> {
+        let output = Base32::decode_vec(&self)?;
+        Ok(output)
+    }
+    fn from_bs32_unpadded(&self) -> Result<Vec<u8>,Bs32Error> {
+        let output = Base32Unpadded::decode_vec(&self)?;
+        Ok(output)
+    }
+    fn from_base58(&self) -> Result<Vec<u8>,bs58DecodingError> {
+        let output = bs58::decode(&self).into_vec()?;
+        Ok(output)
     }
 }
 
