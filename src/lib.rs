@@ -399,6 +399,58 @@ impl SlugAPI {
     pub fn get_encoding(&self) -> SlugEncodings {
         return self.encoding
     }
+    pub fn decode<T: AsRef<str>>(&self, encoded_str: T) -> Result<Vec<u8>,SlugEncodingError> {
+        match self.encoding {
+            SlugEncodings::Hex => {
+                let decoding = encoded_str.as_ref().from_hex();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+            SlugEncodings::Base32 => {
+                let decoding = encoded_str.as_ref().from_bs32();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+            SlugEncodings::Base32unpadded => {
+                let decoding = encoded_str.as_ref().from_bs32_unpadded();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+            SlugEncodings::Base58 => {
+                let decoding = encoded_str.as_ref().from_base58();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+            SlugEncodings::Base64 => {
+                let decoding = encoded_str.as_ref().from_bs64();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+            SlugEncodings::Base64urlsafe => {
+                let decoding = encoded_str.as_ref().from_bs64_url();
+
+                match decoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::DecodingError)
+                }
+            }
+        }
+    }
     pub fn encode<T: AsRef<[u8]>>(&self, bytes: T) -> Result<String,SlugEncodingError> {
         match self.encoding {
             SlugEncodings::Hex => {
@@ -534,4 +586,41 @@ fn slugapi() {
     let output = x.encode(b"Hnma").unwrap();
 
     println!("Output: {}", output)
+}
+
+#[test]
+fn slugdecoder() {
+    use self::SlugEncoder;
+
+    println!("Running SlugEncoder Tests:");
+    println!("");
+
+    let message_concat: &str = "4144675a6e958d60";
+    let message_224: &str = "4144675a6e958d600a2d6a859f5b16ab321ec93e47580ec42025be0b";
+    let message_512: &str = "62928ef1f4effcfcba350e9e033ed8c07a94066654e1a4be79dd72027f3828480a7c517266a04fd747a8702d7087a298484c525bdd1b54997bb5eca1a6219b58";
+
+    let bytes = message_concat.as_bytes();
+    let byte_vec: Vec<u8> = bytes.to_vec();
+
+    println!("HEX: {}",bytes.to_hex().unwrap());
+    println!("Base32: {}", bytes.to_bs32());
+    println!("Base32_unpadded: {}", bytes.to_bs32_unpadded());
+    println!("Base58: {}", bytes.to_base58());
+    println!("Base64: {}",bytes.to_bs64().unwrap());
+    println!("Base64_URL_SAFE: {}",bytes.to_bs64_url().unwrap());
+
+    let hex = bytes.to_hex().unwrap();
+    let output = hex.from_hex().unwrap();
+
+    println!("Decoded Output: {:?}", output)
+}
+
+#[test]
+fn slugapi_usage() {
+    let message_512: &str = "62928ef1f4effcfcba350e9e033ed8c07a94066654e1a4be79dd72027f3828480a7c517266a04fd747a8702d7087a298484c525bdd1b54997bb5eca1a6219b58";
+    
+    let x = SlugAPI::new(SlugEncodings::Hex);
+    let output = x.decode(message_512).unwrap();
+
+    println!("Output: {:?}", output)
 }
