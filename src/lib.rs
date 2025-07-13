@@ -5,6 +5,7 @@
 //! ## Features
 //! 
 //! - Encodings (Hex, Base32, Base58, Base64, Bytes)
+//! - Try Get Encoding (using RegEx) (feature)
 //! - Large Unsigned Integer (feature)
 //! - Zeroize (feature)
 //! - integrity-check (feature) (uses BLAKE2s)
@@ -51,6 +52,21 @@ use bs58::encode::Error as bs58Error;
 // Errors
 use ct_codecs::Error;
 
+
+pub mod errors;
+
+use errors::SlugEncodingError;
+
+#[derive(Clone,Copy,Debug,PartialEq,PartialOrd,Hash)]
+pub enum SlugEncodings {
+    Hex,
+    Base32,
+    Base32unpadded,
+    Base58,
+    Base64,
+    Base64urlsafe,
+}
+
 pub trait SlugEncoder {
     /// # \[Constant-Time] To Hexadecimal
     /// 
@@ -71,8 +87,8 @@ pub trait SlugEncoder {
     /// Accepts as input `AsRef<[u8]>`
     fn to_bs64(&self) -> Result<String, Error>;
 
-    fn to_bs32(&self) -> Result<String, Bs32Error>;
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error>;
+    fn to_bs32(&self) -> String;
+    fn to_bs32_unpadded(&self) -> String;
     fn to_base58(&self) -> String;
 }
 
@@ -175,6 +191,9 @@ impl SlugEncode for SlugEncoder {
 }
 */
 
+
+//=====IMPL SLUGENCODER=====//
+
 impl SlugEncoder for Vec<u8> {
     fn to_hex(&self) -> Result<String, Error> {
         let hex_str = Hex::encode_to_string(&self)?;
@@ -188,15 +207,13 @@ impl SlugEncoder for Vec<u8> {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-    fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: [u8;32] = [0u8;32];
-        let bs32 = Base32::encode(&self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(&self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: [u8;32] = [0u8;32];
-        let bs32 = Base32Unpadded::encode(&self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(&self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -217,15 +234,13 @@ impl SlugEncoder for &[u8] {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-    fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: [u8;32] = [0u8;32];
-        let bs32 = Base32::encode(&self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(&self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: [u8;32] = [0u8;32];
-        let bs32 = Base32Unpadded::encode(&self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(&self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -246,15 +261,13 @@ impl SlugEncoder for [u8;28] {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-    fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32Unpadded::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -275,15 +288,13 @@ impl SlugEncoder for [u8;32] {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-        fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32Unpadded::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -304,15 +315,13 @@ impl SlugEncoder for [u8;48] {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-    fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32Unpadded::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -333,15 +342,13 @@ impl SlugEncoder for [u8;64] {
         let bs64_url_str = Base64UrlSafe::encode_to_string(&self)?;
         Ok(bs64_url_str)
     }
-    fn to_bs32(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32(&self) -> String {
+        let bs32 = Base32::encode_string(self);
+        return bs32
     }
-    fn to_bs32_unpadded(&self) -> Result<String, Bs32Error> {
-        let mut slice: Vec<u8> = vec![];
-        let bs32 = Base32Unpadded::encode(self, &mut slice)?;
-        Ok(bs32.to_string())
+    fn to_bs32_unpadded(&self) -> String {
+        let bs32 = Base32Unpadded::encode_string(self);
+        bs32
     }
     fn to_base58(&self) -> String {
         let s = bs58::encode(&self).into_string();
@@ -350,13 +357,76 @@ impl SlugEncoder for [u8;64] {
 }
 
 
-pub struct SlugAPI;
+/// # SlugAPI Usage
+/// 
+/// A struct for easy use in conversion. Contains the slugencodings enum that holds the different encodings
+/// 
+/// ## Example Code
+/// 
+/// ```rust
+/// use slugencodings::SlugAPI;
+/// use slugencodings::SlugEncodings;
+/// 
+/// fn main() {
+///     let encoder = SlugAPI::new(SlugEncodings::Hex);
+/// }
+/// ```
+/// 
+
+#[derive(Clone,Copy,Debug,PartialEq,PartialOrd,Hash)]
+pub struct SlugAPI {
+    encoding: SlugEncodings,
+}
 
 impl SlugAPI {
-    pub fn new() {
-        // TODO
+    /// Creates a new instance using the intended encoding/decoding
+    pub fn new(encoding: SlugEncodings) -> Self {
+        return Self {
+            encoding: encoding,
+        }
+    }
+    /// Gets encoding
+    pub fn get_encoding(&self) -> SlugEncodings {
+        return self.encoding
+    }
+    pub fn encode<T: AsRef<[u8]>>(&self, bytes: T) -> Result<String,SlugEncodingError> {
+        match self.encoding {
+            SlugEncodings::Hex => {
+                let encoding = bytes.as_ref().to_hex();
+                match encoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::Failed)
+                }
+            }
+            SlugEncodings::Base32 => {
+                Ok(bytes.as_ref().to_bs32())
+            }
+            SlugEncodings::Base32unpadded => {
+                Ok(bytes.as_ref().to_bs32_unpadded())
+            }
+            SlugEncodings::Base58 => {
+                Ok(bytes.as_ref().to_base58())
+            }
+            SlugEncodings::Base64 => {
+                let encoding =  bytes.as_ref().to_bs64();
+
+                match encoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::Failed)
+                }
+            }
+            SlugEncodings::Base64urlsafe => {
+                let encoding =  bytes.as_ref().to_bs64_url();
+
+                match encoding {
+                    Ok(v) => return Ok(v),
+                    Err(_) => return Err(SlugEncodingError::Failed)
+                }
+            }
+        }
     }
 }
+
 
 
 
@@ -369,4 +439,35 @@ fn run() {
     let output = byte_slice.to_base58();
 
     println!("Output: {}", output);
+}
+
+#[test]
+fn slugencoder() {
+    use self::SlugEncoder;
+
+    println!("Running SlugEncoder Tests:");
+    println!("");
+
+    let message_concat: &str = "4144675a6e958d60";
+    let message_224: &str = "4144675a6e958d600a2d6a859f5b16ab321ec93e47580ec42025be0b";
+    let message_512: &str = "62928ef1f4effcfcba350e9e033ed8c07a94066654e1a4be79dd72027f3828480a7c517266a04fd747a8702d7087a298484c525bdd1b54997bb5eca1a6219b58";
+
+    let bytes = message_concat.as_bytes();
+    let byte_vec: Vec<u8> = bytes.to_vec();
+
+    println!("HEX: {}",bytes.to_hex().unwrap());
+    println!("Base32: {}", bytes.to_bs32());
+    println!("Base32_unpadded: {}", bytes.to_bs32_unpadded());
+    println!("Base58: {}", bytes.to_base58());
+    println!("Base64: {}",bytes.to_bs64().unwrap());
+    println!("Base64_URL_SAFE: {}",bytes.to_bs64_url().unwrap());
+
+}
+
+#[test]
+fn slugapi() {
+    let x = SlugAPI::new(SlugEncodings::Base64);
+    let output = x.encode(b"Hnma").unwrap();
+
+    println!("Output: {}", output)
 }
