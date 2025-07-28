@@ -33,7 +33,7 @@ The traits can be implemented or the struct can be used to encode different data
 
 - [X] Base58
 
-- [] Base85
+- [ ] Base85
 
 ## TODO
 
