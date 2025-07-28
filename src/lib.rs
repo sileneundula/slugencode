@@ -1,16 +1,18 @@
-//! # SLUGENCODE
+//! # SlugEncode
 //! 
-//! The SLUGENCODE library provides functionality to encode bytes as different types such as hex, base32, base58, base64, and more
+//! SlugAPI is a module that provides a unified interface for encoding and decoding various formats such as Hex, Base32, Base58, and Base64 in a constant-time manner. It is designed to be efficient and secure, making it suitable for cryptographic applications.
+//! 
+//! This crate provides a set of traits and implementations for encoding and decoding data in a constant-time manner, ensuring that sensitive data is handled securely. It supports various encodings including Hex, Base32, Base58, and Base64.
 //! 
 //! ## Features
 //! 
-//! - Encodings (Hex, Base32, Base58, Base64, Bytes)
-//! - Try Get Encoding (using RegEx) (feature)
-//! - Large Unsigned Integer (feature)
-//! - Zeroize (feature)
-//! - integrity-check (feature) (uses BLAKE2s)
-//! - Add Base85 (not constant-time)
-//! - Add feature Cert
+//! [X] Encodings (Hex, Base32, Base58, Base64, Bytes)
+//! [] Try Get Encoding (using RegEx) (feature)
+//! [] Large Unsigned Integer (feature)
+//! [] Zeroize (feature)
+//! [] integrity-check (feature) (uses BLAKE2s)
+//! [] Add Base85 (not constant-time)
+//! [] Add feature Cert
 //! 
 
 
@@ -56,6 +58,7 @@ use ct_codecs::Error;
 
 
 pub mod errors;
+pub mod prelude;
 
 use errors::SlugEncodingError;
 
@@ -94,9 +97,11 @@ pub trait SlugEncoder {
     /// 
     /// Accepts as input `AsRef<[u8]>`
     fn to_bs64(&self) -> Result<String, Error>;
-
+    /// # \[Constant-Time] To Base32
     fn to_bs32(&self) -> String;
+    /// # \[Constant-Time] To Base32 Unpadded
     fn to_bs32_unpadded(&self) -> String;
+    /// Not Constant-Time
     fn to_base58(&self) -> String;
 }
 
@@ -104,14 +109,22 @@ pub trait SlugEncoder {
 /// 
 /// The SlugDecoder trait is used to decode bytes using different encodings like hex, base32, base58, and base64.
 pub trait SlugDecoder {
+    /// # \[Constant-Time] From Hexadecimal
+    /// Uses `ct_codecs` crate to convert a hexadecimal string into a vector of bytes.
     fn from_hex(&self) -> Result<Vec<u8>,Error>;
+    /// # \[Constant-Time] From Base64
     fn from_bs64(&self) -> Result<Vec<u8>,Error>;
+    /// # \[Constant-Time] From Base64 (URL SAFE) (With Padding)
     fn from_bs64_url(&self) -> Result<Vec<u8>,Error>;
+    // # \[Constant-Time] From Base32
     fn from_bs32(&self) -> Result<Vec<u8>,Bs32Error>;
+    // # \[Constant-Time] From Base32 Unpadded
     fn from_bs32_unpadded(&self) -> Result<Vec<u8>,Bs32Error>;
+    /// From Base58 (Not Constant-Time)
     fn from_base58(&self) -> Result<Vec<u8>,bs58DecodingError>;
 }
 
+/*
 /// # SlugEncode
 /// 
 /// The trait used to convert the encoding.
@@ -201,14 +214,6 @@ pub trait SlugEncode {
     }
 }
 
-/*
-pub struct SlugEncoder;
-
-impl SlugEncode for SlugEncoder {
-    fn from_hex<T: AsRef<str>>(hex_str: T) -> Result<Vec<u8>,Error> {
-        
-    }
-}
 */
 
 
@@ -394,11 +399,11 @@ impl SlugEncoder for [u8;64] {
 /// 
 
 #[derive(Clone,Copy,Debug,PartialEq,PartialOrd,Hash)]
-pub struct SlugAPI {
+pub struct SlugEncodingUsage {
     encoding: SlugEncodings,
 }
 
-impl SlugAPI {
+impl SlugEncodingUsage {
     /// Creates a new instance using the intended encoding/decoding
     pub fn new(encoding: SlugEncodings) -> Self {
         return Self {
@@ -592,7 +597,7 @@ fn slugencoder() {
 
 #[test]
 fn slugapi() {
-    let x = SlugAPI::new(SlugEncodings::Base64);
+    let x = SlugEncodingUsage::new(SlugEncodings::Base64);
     let output = x.encode(b"Hnma").unwrap();
 
     println!("Output: {}", output)
@@ -629,7 +634,7 @@ fn slugdecoder() {
 fn slugapi_usage() {
     let message_512: &str = "62928ef1f4effcfcba350e9e033ed8c07a94066654e1a4be79dd72027f3828480a7c517266a04fd747a8702d7087a298484c525bdd1b54997bb5eca1a6219b58";
     
-    let x = SlugAPI::new(SlugEncodings::Hex);
+    let x = SlugEncodingUsage::new(SlugEncodings::Hex);
     let output = x.decode(message_512).unwrap();
 
     println!("Output: {:?}", output)
