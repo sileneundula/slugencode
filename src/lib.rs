@@ -9,7 +9,8 @@
 //! - Large Unsigned Integer (feature)
 //! - Zeroize (feature)
 //! - integrity-check (feature) (uses BLAKE2s)
-//! 
+//! - Add Base85 (not constant-time)
+//! - Add feature Cert
 //! 
 
 
@@ -17,19 +18,19 @@
 // [X] From_Hex
 // [X] From_Bs64_URL
 // [X] From_Bs64
-// [] From_bs32
-// [] From_bs32_unpadded
+// [X] From_bs32
+// [X] From_bs32_unpadded
 
 
-// [] From Base32
-// [] From Base58
+// [X] From Base32
+// [X] From Base58
 
 // [X] To_Hex
 // [X] To_Bs64_URL
 // [X] To_Bs64
 // [X] To_Base58 (not ct)
-// [] To_bs32
-// [] To_bs32_unpadded
+// [X] To_bs32
+// [X] To_bs32_unpadded
 
 // Add u64, u128, u256 ...
 
@@ -58,6 +59,9 @@ pub mod errors;
 
 use errors::SlugEncodingError;
 
+/// # SlugEncodings
+/// 
+/// This enum features different encodings available to be used. It must be imported to be used with SlugAPI.
 #[derive(Clone,Copy,Debug,PartialEq,PartialOrd,Hash)]
 pub enum SlugEncodings {
     Hex,
@@ -68,6 +72,9 @@ pub enum SlugEncodings {
     Base64urlsafe,
 }
 
+/// # SlugEncoder
+/// 
+/// The SlugEncoder trait is used to encode bytes to different encodings like hex, base32, base58, and base64.
 pub trait SlugEncoder {
     /// # \[Constant-Time] To Hexadecimal
     /// 
@@ -93,6 +100,9 @@ pub trait SlugEncoder {
     fn to_base58(&self) -> String;
 }
 
+/// # SlugEncoder
+/// 
+/// The SlugDecoder trait is used to decode bytes using different encodings like hex, base32, base58, and base64.
 pub trait SlugDecoder {
     fn from_hex(&self) -> Result<Vec<u8>,Error>;
     fn from_bs64(&self) -> Result<Vec<u8>,Error>;
