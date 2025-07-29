@@ -1,18 +1,20 @@
 //! # SlugEncode
 //! 
+//! <img height="50%" width="50%" src="https://sileneundula.github.io/Static/Images/imgs/slugcrypt_final-01.png">
+//! 
 //! SlugAPI is a module that provides a unified interface for encoding and decoding various formats such as Hex, Base32, Base58, and Base64 in a constant-time manner. It is designed to be efficient and secure, making it suitable for cryptographic applications.
 //! 
 //! This crate provides a set of traits and implementations for encoding and decoding data in a constant-time manner, ensuring that sensitive data is handled securely. It supports various encodings including Hex, Base32, Base58, and Base64.
 //! 
 //! ## Features
 //! 
-//! [X] Encodings (Hex, Base32, Base58, Base64, Bytes)
-//! [] Try Get Encoding (using RegEx) (feature)
-//! [] Large Unsigned Integer (feature)
-//! [] Zeroize (feature)
-//! [] integrity-check (feature) (uses BLAKE2s)
-//! [] Add Base85 (not constant-time)
-//! [] Add feature Cert
+//! - [X] Encodings (Hex, Base32, Base58, Base64, Bytes)
+//! - [] Try Get Encoding (using RegEx) (feature)
+//! - [] Large Unsigned Integer (feature)
+//! - [] Zeroize (feature)
+//! - [] integrity-check (feature) (uses BLAKE2s)
+//! - [] Add Base85 (not constant-time)
+//! - [] Add feature Cert
 //! 
 
 
@@ -65,6 +67,29 @@ use errors::SlugEncodingError;
 /// # SlugEncodings
 /// 
 /// This enum features different encodings available to be used. It must be imported to be used with SlugAPI.
+/// 
+/// - Hexadecimal (CT)
+/// - Base32 RFC4648 (CT)
+/// - Base32 RFC4648 Unpadded (CT)
+/// - Base58 (Not CT)
+/// - Base64 (CT)
+/// - Base64 URL Safe (CT)
+/// 
+/// ### Example Code
+/// 
+/// ```rust
+/// use slugencode::SlugEncodings;
+/// // (or) use slugencode::prelude::*;
+/// 
+/// fn main() {
+///     let encoding = SlugEncodings::Hex;
+///     let encoding_base32 = SlugEncodings::Base32;
+///     let encoding_base32_unpadded = SlugEncodings::Base32unpadded;
+///     let encoding_base58 = SlugEncodings::Base58;
+///     let encoding_base64 = SlugEncodings::Base64;
+///     let encoding_base64_url_safe = SlugEncodings::Base64urlsafe;
+/// }
+/// ```
 #[derive(Clone,Copy,Debug,PartialEq,PartialOrd,Hash)]
 pub enum SlugEncodings {
     Hex,
@@ -107,7 +132,7 @@ pub trait SlugEncoder {
 
 /// # SlugEncoder
 /// 
-/// The SlugDecoder trait is used to decode bytes using different encodings like hex, base32, base58, and base64.
+/// The SlugDecoder trait is used to decode bytes using different encodings like hex, base32, base58, and base64. It is implemented on bytes like Vec<u8>, Arrays, and Byte Slices
 pub trait SlugDecoder {
     /// # \[Constant-Time] From Hexadecimal
     /// Uses `ct_codecs` crate to convert a hexadecimal string into a vector of bytes.

@@ -1,5 +1,7 @@
 # SlugEncode
 
+![Crates.io Version](https://img.shields.io/crates/v/slugencode?style=flat-square) ![Deps.rs Crate Dependencies (latest)](https://img.shields.io/deps-rs/slugencode/latest?style=flat-square) ![Crates.io License](https://img.shields.io/crates/l/slugencode?style=flat-square)
+
 <img height="25%" width="25%" src="https://sileneundula.github.io/Static/Images/imgs/slugcrypt_final-01.png">
 
 **Author:** [silene, 0x20CB, DionysianMYST]
@@ -43,9 +45,9 @@ The traits can be implemented or the struct can be used to encode different data
 - Integrity-Check (Feature)
 - Expansion on Traits
 
-### Usage
+## Usage
 
-#### SlugEncodingUsage: A Simple Way To Encode/Decode Data
+### SlugEncodingUsage: A Simple Way To Encode/Decode Data
 
 In this example, we import the slugencode prelude to easily take care of encoding/decoding.
 
@@ -70,7 +72,7 @@ fn main() -> Result<Vec<u8>,SlugEncodingErrors> {
 
 ```
 
-#### SlugEncoder/SlugDecoder: Traits That Can Be Implemented To Encode/Decode Data
+### SlugEncoder/SlugDecoder: Traits That Can Be Implemented To Encode/Decode Data
 
 In this example, we use the traits `slugencoder` and `slugdecoder` to encode/decode data. It encodes data from bytes while it decodes from strings.
 
@@ -83,16 +85,22 @@ use slugencode::SlugEncoder;
 use slugencode::SlugDecoder;
 
 fn main() {
-    let x: Vec<u8> = [4C, 41, 53, 54];
+    // Bytes
+    let x: Vec<u8> = [0x4C, 0x41, 0x53, 0x54];
     
-    // All Tos
-    let hex_str = x.to_hex();
-    let base32_str = x.to_bs32();
-    let base32unpadded_str = x.to_bs32_unpadded();
+    // Hexadecimal (CT)
+    let hex_str: String = x.to_hex();
+    
+    // Base32 (CT)
+    let base32_str: String = x.to_bs32();
+    let base32unpadded_str: String = x.to_bs32_unpadded();
 
-    let base58 = x.to_base58();
-    let base64 = x.to_base64();
-    let base64_url_safe = x.to_base64_url();
+    // Base58 (Not-CT)
+    let base58: String = x.to_base58();
+    
+    // Base64 (CT)
+    let base64: String = x.to_base64();
+    let base64_url_safe: String = x.to_base64_url();
 }
 
 fn decode() {
@@ -102,8 +110,10 @@ fn decode() {
     // Convert string from hex using trait
     let hex_bytes = message_224.from_hex().expect("Decoding failed");
 
-    let btc_address = "1FfmbHfnpaZjKFvyi1okTjJJusN455paPH";
+    // BTC Address (Base58)
+    let btc_address: &str = "1FfmbHfnpaZjKFvyi1okTjJJusN455paPH";
 
+    // Convert string From Base58 using trait
     let bytes = btc_address.from_base58().expect("Decoding failed");
 }
 ```
@@ -114,4 +124,4 @@ Contributions are welcome :)
 
 ## License
 
-APACHE 2.0 OR MIT
+APACHE-2.0 OR MIT
